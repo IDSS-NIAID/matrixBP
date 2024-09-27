@@ -23,7 +23,7 @@
 #' @importFrom deeptime facet_grid_color
 #' @importFrom ggplot2 element_text element_rect geom_segment ggplot labs scale_color_gradient2 scale_x_discrete scale_y_discrete theme
 matrix_barplot <- function(data = NULL, mapping = NULL, 
-                           rows = vars(), cols = vars(), facet_colors = stages,
+                           rows = vars(), cols = vars(), facet_colors = deeptime::stages,
                            switch = 'both', show_strip.x.text = FALSE, show_strip.y.text = FALSE,
                            show_strip.y.background = FALSE, ...)
 {
@@ -63,12 +63,28 @@ matrix_barplot <- function(data = NULL, mapping = NULL,
 }
 
 
-# For specifics on creating a new stat, see [this documentation](https://bookdown.org/rdpeng/RProgDA/building-new-graphical-elements.html#example-normal-confidence-intervals)
+#' stat_centerBar
+#' A new stat for ggplot2 that creates a barplot or line segments with bars centered around the x-axis
+#' 
+#' @param mapping Set of aesthetic mappings created by `aes`.
+#' @param data The data to be displayed in this layer.
+#' @param geom The geometric object to use display the data
+#' @param position The position adjustment to use for overlappling points on this layer
+#' @param na.rm A logical indicating whether NA values should be removed from the data before plotting
+#' @param show.legend A logical indicating whether this layer should be included in the legend
+#' @param inherit.aes A logical indicating whether to inherit the default aesthetics
+#' @param ... Other arguments passed on to `layer`
+#' 
+#' @details For specifics on creating a new stat, see [this documentation](https://bookdown.org/rdpeng/RProgDA/building-new-graphical-elements.html#example-normal-confidence-intervals)
+#' 
+#' @return A ggproto object
+#' @export
+#' @importFrom ggplot2 layer
 stat_centerBar <- function(mapping = NULL, data = NULL, geom = "segment",
                            position = "identity", na.rm = FALSE, 
                            show.legend = NA, inherit.aes = TRUE, ...) {
-  ggplot2::layer(
-    stat = StatCenterBar, 
+  layer(
+    stat = matrixBP::StatCenterBar, # StatCenterBar defined in data-raw/StatCenterBar.R
     data = data, 
     mapping = mapping, 
     geom = geom, 
@@ -78,18 +94,3 @@ stat_centerBar <- function(mapping = NULL, data = NULL, geom = "segment",
     params = list(na.rm = na.rm, ...)
   )
 }
-
-StatCenterBar <- ggproto("StatCenterBar", Stat,
-                     compute_group = function(data, scales) {
-                         ## Compute the line segment endpoints
-                         x <- data$x
-                         xend <- data$x
-                         y <- data$y
-                         yend <- -data$y
-                         
-                         ## Return a new data frame
-                         data.frame(x = x, xend = xend,
-                                    y = y, yend = yend)
-                       },
-                       required_aes = c("x", "y")
-)
