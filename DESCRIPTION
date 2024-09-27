@@ -1,0 +1,16 @@
+Package: matrixBP
+Title: A pacakge for creating matrix barplots
+Version: 0.0.1
+Authors@R: c(person('Randy', 'Johnson', email = 'randall.johnson@nih.gov', 
+                    role = c('cre', 'aut')))
+Description: This package provides a functions for creating matrix barplots.
+License: MIT + file LICENSE
+Depends: R (>= 4.0), deeptime, ggplot2, patchwork
+Imports: 
+  dplyr,
+  stats
+URL: https://github.com/IDSS-NIAID/matrixBP
+BugReports: https://github.com/IDSS-NIAID/matrixBP/issues
+Encoding: UTF-8
+RoxygenNote: 7.3.2
+LazyData: true

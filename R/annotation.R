@@ -7,6 +7,8 @@
 #' 
 #' @return A ggplot object with a legend added.
 #' @export
+#' @importFrom ggplot2 aes as_label geom_rect ggplot ggplot_build scale_fill_manual theme theme_void
+#' @importFrom patchwork area plot_layout
 mBP_legend <- function(g)
 {
   # take care of pesky no visible binding for global variables warnings
@@ -50,6 +52,8 @@ mBP_legend <- function(g)
 #' @return A ggplot object with labels added.
 #' @export
 #' @importFrom dplyr group_by mutate ungroup case_when
+#' @importFrom ggplot2 aes as_label coord_cartesian element_blank element_text facet_grid geom_text ggplot ggplot_build labs scale_color_manual scale_x_discrete scale_y_discrete theme vars
+#' @importFrom patchwork area plot_layout
 #' @importFrom stats median
 mBP_labels <- function(g)
 {

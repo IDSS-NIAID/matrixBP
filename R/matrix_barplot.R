@@ -20,6 +20,8 @@
 #' 
 #' @return A ggplot2 object
 #' @export
+#' @importFrom deeptime facet_grid_color
+#' @importFrom ggplot2 element_text element_rect geom_segment ggplot labs scale_color_gradient2 scale_x_discrete scale_y_discrete theme
 matrix_barplot <- function(data = NULL, mapping = NULL, 
                            rows = vars(), cols = vars(), facet_colors = stages,
                            switch = 'both', show_strip.x.text = FALSE, show_strip.y.text = FALSE,
