@@ -1,0 +1,51 @@
+---
+title: matrixBP
+format: gfm
+---
+
+
+```{r}
+library(matrixBP)
+library(RColorBrewer)
+library(cowplot)
+theme_set(theme_cowplot())
+
+root <- here::here()
+
+# Load the data
+data(metlip)
+
+# colors for facet_grid labels
+grp_colors <- levels(metlip$Group) |>
+  length() |>
+  brewer.pal('Set3')
+names(grp_colors) <- levels(metlip$Group)
+
+
+# plot with colored facets
+matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
+               cols = vars(Group), rows = vars(sample), facet_colors = grp_colors) |>
+  mBP_legend()
+
+
+# plot with labeled facets doesn't want to plot to the preview window
+# the labels are also messed up and need some help
+matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
+               cols = vars(Acyl_1), rows = vars(sample)) |>
+  mBP_labels()
+
+# adding text labels when coloring the x-axis of facet_colors also has the same issue
+matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
+               cols = vars(Group), rows = vars(sample), facet_colors = grp_colors) |>
+  mBP_labels()
+
+
+# trying to plot multiple samples on a single row causes the colors not to work
+# add a catch that will notify the user if they try to do this
+matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
+               cols = vars(Group), facet_colors = grp_colors) |>
+  mBP_legend()
+
+
+# try adding `na.rm = TRUE` to `scale_...` to see if that gets rid of warnings about NA values
+```
