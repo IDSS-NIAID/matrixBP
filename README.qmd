@@ -10,7 +10,15 @@ library(RColorBrewer)
 library(cowplot)
 theme_set(theme_cowplot())
 
-root <- here::here()
+
+# need to install the package before this script will work.
+if(FALSE)
+{
+  # After cloning the repo, create a new R Project (File -> New Project... -> Existing Directory) and run the following command in the console:
+  # Download https://nih-my.sharepoint.com/:u:/g/personal/johnsonra_nih_gov/EeEo-VNRXchMl47X2jhcHLcB2IaSH--TKOcUpS5OLvBoSQ?e=lQwu9Q and save it to `data/metlip.rda`
+  devtools::install()
+}
+
 
 # Load the data
 data(metlip)
@@ -26,6 +34,14 @@ names(grp_colors) <- levels(metlip$Group)
 matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
                cols = vars(Group), rows = vars(sample), facet_colors = grp_colors) |>
   mBP_legend()
+
+
+# change the color of the bars
+g1 <- matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
+               cols = vars(Group), rows = vars(sample), facet_colors = grp_colors) +
+  scale_color_gradient2(low = 'purple3', high = 'orange3')
+
+mBP_legend(g1)
 
 
 # plot with labeled facets doesn't want to plot to the preview window
