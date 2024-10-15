@@ -11,10 +11,12 @@ matrix_barplot(
   rows = vars(),
   cols = vars(),
   facet_colors = deeptime::stages,
+  orientation = "landscape",
   switch = "both",
   show_strip.x.text = FALSE,
   show_strip.y.text = FALSE,
-  show_strip.y.background = FALSE,
+  show_strip.y.background = orientation == "portrait",
+  show_strip.x.background = orientation == "landscape",
   ...
 )
 }
@@ -29,6 +31,8 @@ matrix_barplot(
 
 \item{facet_colors}{Specifies which colors to use to replace the strip backgrounds (i.e. corresponding to the values in the variables specified in `rows` and `cols`. Either A) a function that returns a color for a given strip label, B) the character name of a function that does the same, C) a named character vector with names matching strip labels and values indicating the desired colors, or D) a data.frame representing a lookup table with columns named "name" (matching strip labels) and "color" (indicating desired colors).}
 
+\item{orientation}{Character value defining the orientation of the plot. Can be "landscape" or "portrait".}
+
 \item{switch}{By default, the labels are displayed on the top and right of the plot. If "x", the top labels will be displayed to the bottom. If "y", the right-hand side labels will be displayed to the left. Can also be set to "both".}
 
 \item{show_strip.x.text}{Logical indicating whether to show the x-axis facet label text inside the colored rectangles associated with `cols`.}
@@ -36,6 +40,8 @@ matrix_barplot(
 \item{show_strip.y.text}{Logical indicating whether to show the y-axis facet label text inside the colored rectangles associated with `rows`.}
 
 \item{show_strip.y.background}{Logical indicating whether to print rectangles for the y-axis facets associated with `rows`.}
+
+\item{show_strip.x.background}{Logical indicating whether to print rectangles for the x-axis facets associated with `cols`.}
 
 \item{...}{Other arguments passed on to `ggplot`. These are often aesthetics, used to set an aesthetic to a fixed value, like color = "red" or size = 3.}
 }

@@ -2,10 +2,22 @@
 % Please edit documentation in R/matrix_barplot.R
 \name{stat_centerBar}
 \alias{stat_centerBar}
+\alias{stat_centerBar2}
 \title{stat_centerBar
 A new stat for ggplot2 that creates a barplot or line segments with bars centered around the x-axis}
 \usage{
 stat_centerBar(
+  mapping = NULL,
+  data = NULL,
+  geom = "segment",
+  position = "identity",
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE,
+  ...
+)
+
+stat_centerBar2(
   mapping = NULL,
   data = NULL,
   geom = "segment",
@@ -39,6 +51,9 @@ A ggproto object
 \description{
 stat_centerBar
 A new stat for ggplot2 that creates a barplot or line segments with bars centered around the x-axis
+
+stat_centerBar2
+A new stat for ggplot2 that creates a barplot or line segments with bars centered around the y-axis
 }
 \details{
 For specifics on creating a new stat, see [this documentation](https://bookdown.org/rdpeng/RProgDA/building-new-graphical-elements.html#example-normal-confidence-intervals)

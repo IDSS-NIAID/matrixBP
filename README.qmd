@@ -35,6 +35,11 @@ matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
                cols = vars(Group), rows = vars(sample), facet_colors = grp_colors) |>
   mBP_legend()
 
+# plot in portrait orientation
+matrix_barplot(metlip, aes(x = neg_log_p, y = Lipid, color = log2FC),
+               cols = vars(sample), rows = vars(Group), facet_colors = grp_colors,
+               orientation = 'portrait') |>
+  mBP_legend()
 
 # change the color of the bars
 g1 <- matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),

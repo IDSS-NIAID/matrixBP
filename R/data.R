@@ -21,3 +21,8 @@
 #' 
 #' A new stat for ggplot2 that creates a barplot or line segments with bars centered around the x-axis
 "StatCenterBar"
+
+#' StatCenterBar2
+#' 
+#' A new stat for ggplot2 that creates a barplot or line segments with bars centered around the x-axis
+"StatCenterBar2"
