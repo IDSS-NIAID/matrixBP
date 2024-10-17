@@ -90,6 +90,8 @@ mBP_labels <- function(g)
                       x),
            grp = PANEL) |>                          # group number
     ungroup() |>
+    
+    dplyr::filter(!is.na(lbl)) |>                   # if there are multiple rows/samples, all but the first row will be NA - drop them
 
     ggplot(aes(x = x, y = y, label = lbl, vjust = just, color = print)) +
     

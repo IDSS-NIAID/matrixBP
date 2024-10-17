@@ -6,6 +6,7 @@ format: gfm
 
 ```{r}
 library(matrixBP)
+library(dplyr)
 library(RColorBrewer)
 library(cowplot)
 theme_set(theme_cowplot())
@@ -49,16 +50,18 @@ g1 <- matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
 mBP_legend(g1)
 
 
-# plot with labeled facets doesn't want to plot to the preview window
-# the labels are also messed up and need some help
+# plots with labeled facets
 matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
                cols = vars(Acyl_1), rows = vars(sample)) |>
   mBP_labels()
 
-# adding text labels when coloring the x-axis of facet_colors also has the same issue
-matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
-               cols = vars(Group), rows = vars(sample), facet_colors = grp_colors) |>
+#### portrait mode labels need work
+matrix_barplot(metlip, aes(x = neg_log_p, y = Lipid, color = log2FC),
+               cols = vars(sample), rows = vars(Group), facet_colors = grp_colors,
+               orientation = 'portrait') |>
   mBP_labels()
+
+
 
 
 # trying to plot multiple samples on a single row causes the colors not to work
