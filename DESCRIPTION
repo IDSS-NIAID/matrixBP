@@ -1,6 +1,6 @@
 Package: matrixBP
 Title: A pacakge for creating matrix barplots
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: c(person('Randy', 'Johnson', email = 'randall.johnson@nih.gov', 
                     role = c('cre', 'aut')))
 Description: This package provides a functions for creating matrix barplots.

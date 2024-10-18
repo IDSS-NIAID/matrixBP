@@ -5,6 +5,7 @@ format: gfm
 
 
 ```{r}
+#| dpi: 300
 library(matrixBP)
 library(dplyr)
 library(RColorBrewer)
@@ -53,16 +54,25 @@ mBP_legend(g1)
 # plots with labeled facets
 matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
                cols = vars(Acyl_1), rows = vars(sample)) |>
-  mBP_labels()
+  mBP_col_labels()
 
-#### portrait mode labels need work
 matrix_barplot(metlip, aes(x = neg_log_p, y = Lipid, color = log2FC),
                cols = vars(sample), rows = vars(Group), facet_colors = grp_colors,
                orientation = 'portrait') |>
-  mBP_labels()
+  mBP_row_labels()
 
 
+# plot with 12 samples
+(g <- metlip |>
+  bind_rows(mutate(metlip, sample = paste0(sample, 1)),
+            mutate(metlip, sample = paste0(sample, 2))) |>
+  
+  matrix_barplot(aes(x = Lipid, y = neg_log_p, color = log2FC),
+                 cols = vars(Group), rows = vars(sample), facet_colors = grp_colors) |>
+  mBP_legend())
 
+# larger plots seem to have trouble rendering in RStudio, but saving them as a file works
+#ggsave('12_samples.png', g, width = 10, height = 10)
 
 # trying to plot multiple samples on a single row causes the colors not to work
 # add a catch that will notify the user if they try to do this
