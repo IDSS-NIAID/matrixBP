@@ -1,6 +1,14 @@
 # matrixBP
 
 
+## Installation
+
+To install the matrixBP package, you can use the following command in R:
+
+    devtools::install_github('IDSS-NIAID/matrixBP')
+
+## Examples
+
 ``` r
 library(matrixBP)
 ```
@@ -40,15 +48,6 @@ library(cowplot)
 
 ``` r
 theme_set(theme_cowplot())
-
-
-# need to install the package before this script will work.
-if(FALSE)
-{
-  # After cloning the repo, create a new R Project (File -> New Project... -> Existing Directory) and run the following command in the console:
-  # Download https://nih-my.sharepoint.com/:u:/g/personal/johnsonra_nih_gov/EeEo-VNRXchMl47X2jhcHLcB2IaSH--TKOcUpS5OLvBoSQ?e=lQwu9Q and save it to `data/metlip.rda`
-  devtools::install()
-}
 
 
 # Load the data
