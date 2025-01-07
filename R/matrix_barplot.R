@@ -7,11 +7,13 @@
 #' @param rows A set of aesthetic mappings for the rows of the matrix barplot. Rows will be sorted alphabetically for character variables and numerically for factors.
 #' @param facet_colors Specifies which colors to use to replace the strip backgrounds (i.e. corresponding to the values in the variables specified in `rows` and `cols`. Either A) a function that returns a color for a given strip label, B) the character name of a function that does the same, C) a named character vector with names matching strip labels and values indicating the desired colors, or D) a data.frame representing a lookup table with columns named "name" (matching strip labels) and "color" (indicating desired colors).
 #' @param orientation Character value defining the orientation of the plot. Can be "landscape" or "portrait".
-#' @param switch By default, the labels are displayed on the top and right of the plot. If "x", the top labels will be displayed to the bottom. If "y", the right-hand side labels will be displayed to the left. Can also be set to "both".
+#' @param switch Logical. By default (`switch = FALSE`), the labels are displayed on the bottom and/or left of the plot. If `switch = TRUE`, the labels are displayed on the top and/or right of the plot.
 #' @param show_strip.x.text Logical indicating whether to show the x-axis facet label text inside the colored rectangles associated with `cols`.
 #' @param show_strip.y.text Logical indicating whether to show the y-axis facet label text inside the colored rectangles associated with `rows`.
 #' @param show_strip.y.background Logical indicating whether to print rectangles for the y-axis facets associated with `rows`.
 #' @param show_strip.x.background Logical indicating whether to print rectangles for the x-axis facets associated with `cols`.
+#' @param remove.x.labels Logical indicating whether to remove the x-axis labels.
+#' @param remove.y.labels Logical indicating whether to remove the y-axis labels.
 #' @param ... Other arguments passed on to `ggplot`. These are often aesthetics, used to set an aesthetic to a fixed value, like color = "red" or size = 3.
 #' 
 #' @details This function creates a matrix barplot and expects `x` (e.g. a gene or metabolite) and `y` (a numeric value defining the hight of the bars, e.g. -log10 p-value) to be defined in the mapping.
@@ -26,11 +28,20 @@
 #' @importFrom ggplot2 element_text element_rect geom_segment ggplot labs scale_color_gradient2 scale_x_discrete scale_y_discrete theme
 matrix_barplot <- function(data = NULL, mapping = NULL, 
                            rows = vars(), cols = vars(), facet_colors = deeptime::stages,
-                           orientation = 'landscape', switch = 'both',
+                           orientation = 'landscape', switch = FALSE,
                            show_strip.x.text = FALSE, show_strip.y.text = FALSE,
                            show_strip.y.background = orientation == 'portrait',
-                           show_strip.x.background = orientation == 'landscape', ...)
+                           show_strip.x.background = orientation == 'landscape', 
+                           remove.x.labels = TRUE, remove.y.labels = TRUE, ...)
 {
+  # translate `switch` to work with `facet_grid_color`
+  if(!switch)
+  {
+    switch_translation <- c('both')
+  }else{
+    switch_translation <- NULL
+  }
+  
   # main figure
   if(orientation == 'landscape')
   {
@@ -40,7 +51,7 @@ matrix_barplot <- function(data = NULL, mapping = NULL,
       
       # add facet grid with custom colors
       facet_grid_color(cols = cols, rows = rows, colors = facet_colors, 
-                       switch = 'both', scales = 'free_x', space = 'free')
+                       switch = switch_translation, scales = 'free_x', space = 'free')
       
   }else if(orientation == 'portrait'){
     retval <- ggplot(data, mapping, ...) +
@@ -49,19 +60,20 @@ matrix_barplot <- function(data = NULL, mapping = NULL,
       
       # add facet grid with custom colors
       facet_grid_color(cols = cols, rows = rows, colors = facet_colors, 
-                       switch = 'both', scales = 'free_y', space = 'free')
+                       switch = switch_translation, scales = 'free_y', space = 'free')
       
   }else{
     stop('orientation must be either "landscape" or "portrait"')
   }
    
+  # remove labels
+  if(remove.x.labels)
+    retval <- retval + scale_x_discrete(labels = NULL, breaks = NULL) + labs(x = NULL)
+  if(remove.y.labels)
+    retval <- retval + scale_y_discrete(labels = NULL, breaks = NULL) + labs(y = NULL)
+  
   retval <- retval +
-    
-    # remove labels
-    scale_x_discrete(labels = NULL, breaks = NULL) +
-    scale_y_discrete(labels = NULL, breaks = NULL) +
-    labs(x = NULL, y = NULL) +
-    
+
     # default theme for matrix_barplots
     theme(legend.position = 'top') +
     

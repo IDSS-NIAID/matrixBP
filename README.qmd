@@ -59,7 +59,7 @@ matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
 
 matrix_barplot(metlip, aes(x = neg_log_p, y = Lipid, color = log2FC),
                cols = vars(sample), rows = vars(Group), facet_colors = grp_colors,
-               orientation = 'portrait') |>
+               orientation = 'portrait', switch = TRUE) |>
   mBP_row_labels()
 
 
@@ -71,6 +71,7 @@ matrix_barplot(metlip, aes(x = neg_log_p, y = Lipid, color = log2FC),
   matrix_barplot(aes(x = Lipid, y = neg_log_p, color = log2FC),
                  cols = vars(Group), rows = vars(sample), facet_colors = grp_colors) |>
   mBP_legend())
+
 
 # larger plots seem to have trouble rendering in RStudio, but saving them as a file works
 #ggsave('12_samples.png', g, width = 10, height = 10)

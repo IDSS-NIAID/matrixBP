@@ -49,6 +49,8 @@ mBP_legend <- function(g)
 #' 
 #' @param g A ggplot object as returned from `matrix_barplot`.
 #' @param margin A numeric value to adjust the width of the margin
+#' @param left A logical value to determine if the labels should be on the left side of the plot. Default is `TRUE`.
+#' @param bottom A logical value to determine if the labels should be on the bottom side of the plot. Default is `TRUE`.
 #' 
 #' @return A ggplot object with labels added.
 #' @export
@@ -127,6 +129,10 @@ mBP_col_labels <- function(g, margin = 3)
 #' @export
 mBP_row_labels <- function(g, margin = 3)
 {
+  # this indicates `switch = TRUE` was passed to `matrix_barplot`
+  # when `switch = 'both'`, the row labels are on the left side of the plot, otherwise `switch` will be NULL
+  left <- !is.null(ggplot_build(g)$layout$facet_params$switch)
+  
   # take care of those pesky no visible binding for global variables warnings
   if(FALSE)
     grp <- just <- lbl <- midpoint <- PANEL <- x <- y <- 
@@ -167,12 +173,18 @@ mBP_row_labels <- function(g, margin = 3)
     ungroup() |>
     
     dplyr::select(-PANEL, -colour, -group, -xend, -grp) |>
-    unique() |>                   # if there are multiple rows/samples, all but the first row will be NA - drop them
+    unique()                                        # if there are multiple rows/samples, all but the first row will be NA - drop them
     
-    ggplot(aes(x = x, y = y, label = lbl, vjust = just, color = print)) +
+  row_labels <- row_labels |> 
+    mutate(
+      hjust = ifelse(left, 1, 0),
+      x_adj = ifelse(left, -0.5, 0.5)
+    )
+  
+  row_label_plot <- ggplot(row_labels, aes(x = x + x_adj, y = y, label = lbl, vjust = just, color = print)) +
     
     # print labels (include all values to maintain spacing, but only color one per group)
-    geom_text(angle = 0, hjust = 1, size = 3) +
+    geom_text(angle = 0, aes(hjust = hjust), size = 3) +
     scale_color_manual(values = c('transparent', 'black')) +
     
     facet_grid(cols = vars(), rows = vars(lbl), space = 'free', scales = 'free_y', switch = 'both') +
@@ -188,8 +200,19 @@ mBP_row_labels <- function(g, margin = 3)
           strip.background = element_blank())
   
   # add the labels to the plot (assuming the legend is at the top - need to work on this some more)
-  layout <- c(area(t = 1, l =      1, b = 20, r = margin),
-              area(t = 1, l = margin, b = 20, r =     20))
+  if(left){
+    layout <- c(
+      area(t = 1, l = 1, b = 20, r = margin),
+      area(t = 1, l = margin, b = 20, r = 20)
+    )
+    final_plot <- row_label_plot + g + plot_layout(design = layout)
+  } else {
+    layout <- c(
+      area(t = 1, l = 1, b = 20, r = 20),
+      area(t = 1, l = 20, b = 20, r = margin + 20)
+    )
+    final_plot <- g + row_label_plot + plot_layout(design = layout)
+  }
   
-  row_labels + g + plot_layout(design = layout)
+  return(final_plot)
 }
