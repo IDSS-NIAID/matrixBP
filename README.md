@@ -122,6 +122,18 @@ matrix_barplot(metlip, aes(x = neg_log_p, y = Lipid, color = log2FC),
 ![](README_files/figure-commonmark/unnamed-chunk-1-5.png)
 
 ``` r
+(filter(metlip, Group %in% c('Lyso_PE', 'Lyso_PG', 'Lyso_PI')) |>
+  matrix_barplot(aes(x = neg_log_p, y = Lipid, color = log2FC),
+               cols = vars(sample), rows = vars(Group), facet_colors = grp_colors,
+               orientation = 'portrait', 
+               switch = TRUE, remove.y.labels = FALSE) +
+      theme(legend.text = element_text(size = 6))) |>
+  mBP_row_labels()
+```
+
+![](README_files/figure-commonmark/unnamed-chunk-1-6.png)
+
+``` r
 # plot with 12 samples
 (g <- metlip |>
   bind_rows(mutate(metlip, sample = paste0(sample, 1)),
@@ -135,7 +147,7 @@ matrix_barplot(metlip, aes(x = neg_log_p, y = Lipid, color = log2FC),
     Warning: Removed 11 rows containing missing values or values outside the scale range
     (`geom_rect()`).
 
-![](README_files/figure-commonmark/unnamed-chunk-1-6.png)
+![](README_files/figure-commonmark/unnamed-chunk-1-7.png)
 
 ``` r
 # larger plots seem to have trouble rendering in RStudio, but saving them as a file works
@@ -351,7 +363,7 @@ matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
     Warning: Removed 11 rows containing missing values or values outside the scale range
     (`geom_rect()`).
 
-![](README_files/figure-commonmark/unnamed-chunk-1-7.png)
+![](README_files/figure-commonmark/unnamed-chunk-1-8.png)
 
 ``` r
 # try adding `na.rm = TRUE` to `scale_...` to see if that gets rid of warnings about NA values

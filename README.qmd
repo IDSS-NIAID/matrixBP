@@ -59,7 +59,15 @@ matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
 
 matrix_barplot(metlip, aes(x = neg_log_p, y = Lipid, color = log2FC),
                cols = vars(sample), rows = vars(Group), facet_colors = grp_colors,
-               orientation = 'portrait', switch = TRUE) |>
+               orientation = 'portrait') |>
+  mBP_row_labels()
+
+(filter(metlip, Group %in% c('Lyso_PE', 'Lyso_PG', 'Lyso_PI')) |>
+  matrix_barplot(aes(x = neg_log_p, y = Lipid, color = log2FC),
+               cols = vars(sample), rows = vars(Group), facet_colors = grp_colors,
+               orientation = 'portrait', 
+               switch = TRUE, remove.y.labels = FALSE) +
+      theme(legend.text = element_text(size = 6))) |>
   mBP_row_labels()
 
 
