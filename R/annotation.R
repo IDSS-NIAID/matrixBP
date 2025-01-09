@@ -52,8 +52,9 @@ mBP_legend <- function(g)
 #' 
 #' @return A ggplot object with labels added.
 #' @export
-#' @importFrom dplyr group_by mutate ungroup case_when
-#' @importFrom ggplot2 aes as_label coord_cartesian element_blank element_text facet_grid geom_text ggplot ggplot_build labs scale_color_manual scale_x_discrete scale_y_discrete theme vars
+#' @importFrom dplyr filter group_by mutate ungroup case_when summarize
+#' @importFrom ggh4x facetted_pos_scales
+#' @importFrom ggplot2 aes as_label coord_cartesian element_blank element_text facet_grid geom_text ggplot ggplot_build labs scale_color_manual scale_x_continuous scale_x_discrete scale_y_continuous scale_y_discrete theme vars
 #' @importFrom patchwork area plot_layout
 #' @importFrom stats median
 mBP_col_labels <- function(g, margin = 3)
@@ -71,10 +72,13 @@ mBP_col_labels <- function(g, margin = 3)
   
   if(!is.factor(plot_env$data[[cols]]))
   {
-    cols <- factor(plot_env$data[[cols]]) |> levels()
+    cols <- factor(plot_env$data[[cols]]) |> 
+      levels() |>
+      factor() # kind of hacky, but this preserves the order correctly...
   }else{
     tmp <- levels(plot_env$data[[cols]])
-    cols <- tmp[tmp %in% plot_env$data[[cols]]] # drop missing values if they were filtered from the data set
+    cols <- tmp[tmp %in% plot_env$data[[cols]]] |> # drop missing values if they were filtered from the data set
+      factor(levels = tmp)                         # and convert back to a factor with the correct levels
   }
   
   # set up the labels
@@ -94,16 +98,30 @@ mBP_col_labels <- function(g, margin = 3)
            grp = PANEL) |>                          # group number
     ungroup() |>
     
-    dplyr::filter(!is.na(lbl)) |>                   # if there are multiple rows/samples, all but the first row will be NA - drop them
+    dplyr::filter(!is.na(lbl))                      # if there are multiple rows/samples, all but the first row will be NA - drop them
+  
+  # set up panel label ranges
+  tmp <- col_labels |>
+    group_by(lbl) |>
+    summarize(xmin = min(x), xmax = max(x)) |>
+    ungroup()
+  
+  x_scales <- list()
+  for(i in 1:nrow(tmp))
+  {
+    x_scales[[i]] <- scale_x_continuous(limits = c(tmp$xmin[i], tmp$xmax[i]), labels = NULL, breaks = NULL)
+  }
+  
 
-    ggplot(aes(x = x, y = y, label = lbl, vjust = just, color = print)) +
+  col_label_plot <- filter(col_labels, print) |>
+    ggplot(aes(x = midpoint, y = y, label = lbl, vjust = just)) +
     
     # print labels (include all values to maintain spacing, but only color one per group)
     geom_text(angle = 90, hjust = 1, size = 3) +
-    scale_color_manual(values = c('transparent', 'black')) +
 
     facet_grid(cols = vars(grp), rows = vars(), space = 'free', scales = 'free_x', switch = 'both') +
     coord_cartesian(clip = 'off') +
+    facetted_pos_scales(x = x_scales) +
 
     # turn off all labels, axes, and facet grid annotations
     scale_x_discrete(labels = NULL, breaks = NULL) +
@@ -118,7 +136,7 @@ mBP_col_labels <- function(g, margin = 3)
   layout <- c(area(t =  1,          l = 1, b = 20 - margin, r = 1),
               area(t = 20 - margin, l = 1, b = 20,          r = 1))
   
-  g + col_labels + plot_layout(design = layout)
+  g + col_label_plot + plot_layout(design = layout)
 }
 
 
@@ -145,13 +163,16 @@ mBP_row_labels <- function(g, margin = 3)
   rows <- as_label(ggplot_build(g)$layout$facet_params$rows[[1]])
   
   ncols <- length(unique(ggplot_build(g)$data[[1]]$PANEL)) / length(unique(plot_env$data[[rows]]))
-  
+ 
   if(!is.factor(plot_env$data[[rows]]))
   {
-    rows <- factor(plot_env$data[[rows]]) |> levels()
+    rows <- factor(plot_env$data[[rows]]) |> 
+      levels() |>
+      factor() # kind of hacky, but this preserves the order correctly...
   }else{
     tmp <- levels(plot_env$data[[rows]])
-    rows <- tmp[tmp %in% plot_env$data[[rows]]] # drop missing values if they were filtered from the data set
+    rows <- tmp[tmp %in% plot_env$data[[rows]]] |> # drop missing values if they were filtered from the data set
+      factor(levels = tmp)                         # and convert back to a factor with the correct levels
   }
   
   # set up the labels
@@ -182,18 +203,31 @@ mBP_row_labels <- function(g, margin = 3)
       x_adj = ifelse(left, -0.5, 0.5)
     )
   
-  row_label_plot <- ggplot(row_labels, aes(x = x + x_adj, y = y, label = lbl, vjust = just, color = print)) +
+  # set up panel labels
+  tmp <- group_by(row_labels, lbl) |>
+    summarize(ymin = min(y), ymax = max(y))
+  
+  y_scales <- list()
+  for(i in 1:nrow(tmp))
+  {
+    y_scales[[i]] <- scale_y_continuous(limits = c(tmp$ymin[i], tmp$ymax[i]), labels = NULL, breaks = NULL)
+  }
+  
+  
+  row_label_plot <- 
+    filter(row_labels, print) |>
+    ggplot(aes(x = x + x_adj, y = midpoint, label = lbl, vjust = 0, hjust = hjust)) +
     
     # print labels (include all values to maintain spacing, but only color one per group)
-    geom_text(angle = 0, aes(hjust = hjust), size = 3) +
-    scale_color_manual(values = c('transparent', 'black')) +
+    geom_text(angle = 0, size = 3) +
+    #scale_color_manual(values = c('transparent', 'black')) +
     
     facet_grid(cols = vars(), rows = vars(lbl), space = 'free', scales = 'free_y', switch = 'both') +
     coord_cartesian(clip = 'off') +
+    facetted_pos_scales(y = y_scales) +
     
     # turn off all labels, axes, and facet grid annotations
     scale_x_discrete(labels = NULL, breaks = NULL) +
-    scale_y_discrete(labels = NULL, breaks = NULL) +
     labs(x = NULL, y = NULL) +
     
     theme(legend.position = 'none',

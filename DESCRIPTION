@@ -9,6 +9,7 @@ Depends: R (>= 4.0), deeptime, ggplot2, patchwork
 Imports: 
   dplyr,
   forcats,
+  ggh4x,
   rlang,
   stats,
   utils
