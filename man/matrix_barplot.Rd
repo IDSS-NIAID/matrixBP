@@ -12,11 +12,13 @@ matrix_barplot(
   cols = vars(),
   facet_colors = deeptime::stages,
   orientation = "landscape",
-  switch = "both",
+  switch = FALSE,
   show_strip.x.text = FALSE,
   show_strip.y.text = FALSE,
   show_strip.y.background = orientation == "portrait",
   show_strip.x.background = orientation == "landscape",
+  remove.x.labels = TRUE,
+  remove.y.labels = TRUE,
   ...
 )
 }
@@ -33,7 +35,7 @@ matrix_barplot(
 
 \item{orientation}{Character value defining the orientation of the plot. Can be "landscape" or "portrait".}
 
-\item{switch}{By default, the labels are displayed on the top and right of the plot. If "x", the top labels will be displayed to the bottom. If "y", the right-hand side labels will be displayed to the left. Can also be set to "both".}
+\item{switch}{Logical. By default (`switch = FALSE`), the labels are displayed on the bottom and/or left of the plot. If `switch = TRUE`, the labels are displayed on the top and/or right of the plot.}
 
 \item{show_strip.x.text}{Logical indicating whether to show the x-axis facet label text inside the colored rectangles associated with `cols`.}
 
@@ -42,6 +44,10 @@ matrix_barplot(
 \item{show_strip.y.background}{Logical indicating whether to print rectangles for the y-axis facets associated with `rows`.}
 
 \item{show_strip.x.background}{Logical indicating whether to print rectangles for the x-axis facets associated with `cols`.}
+
+\item{remove.x.labels}{Logical indicating whether to remove the x-axis labels.}
+
+\item{remove.y.labels}{Logical indicating whether to remove the y-axis labels.}
 
 \item{...}{Other arguments passed on to `ggplot`. These are often aesthetics, used to set an aesthetic to a fixed value, like color = "red" or size = 3.}
 }

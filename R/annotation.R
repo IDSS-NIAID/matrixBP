@@ -49,8 +49,6 @@ mBP_legend <- function(g)
 #' 
 #' @param g A ggplot object as returned from `matrix_barplot`.
 #' @param margin A numeric value to adjust the width of the margin
-#' @param left A logical value to determine if the labels should be on the left side of the plot. Default is `TRUE`.
-#' @param bottom A logical value to determine if the labels should be on the bottom side of the plot. Default is `TRUE`.
 #' 
 #' @return A ggplot object with labels added.
 #' @export
@@ -129,14 +127,15 @@ mBP_col_labels <- function(g, margin = 3)
 #' @export
 mBP_row_labels <- function(g, margin = 3)
 {
+  # take care of those pesky no visible binding for global variables warnings
+  if(FALSE)
+    grp <- just <- lbl <- midpoint <- PANEL <- x <- y <- x_adj <- hjust <- 
+      yend <- colour <- group <- xend <- NULL
+
+    
   # this indicates `switch = TRUE` was passed to `matrix_barplot`
   # when `switch = 'both'`, the row labels are on the left side of the plot, otherwise `switch` will be NULL
   left <- !is.null(ggplot_build(g)$layout$facet_params$switch)
-  
-  # take care of those pesky no visible binding for global variables warnings
-  if(FALSE)
-    grp <- just <- lbl <- midpoint <- PANEL <- x <- y <- 
-      yend <- colour <- group <- xend <- NULL
   
   # this is where we'll find the facet label information we need
   plot_env <- ggplot_build(g)$layout$facet_params$plot_env
