@@ -73,7 +73,8 @@ mBP_col_labels <- function(g, margin = 3)
   {
     cols <- factor(plot_env$data[[cols]]) |> levels()
   }else{
-    cols <- levels(plot_env$data[[cols]])
+    tmp <- levels(plot_env$data[[cols]])
+    cols <- tmp[tmp %in% plot_env$data[[cols]]] # drop missing values if they were filtered from the data set
   }
   
   # set up the labels
@@ -149,7 +150,8 @@ mBP_row_labels <- function(g, margin = 3)
   {
     rows <- factor(plot_env$data[[rows]]) |> levels()
   }else{
-    rows <- levels(plot_env$data[[rows]])
+    tmp <- levels(plot_env$data[[rows]])
+    rows <- tmp[tmp %in% plot_env$data[[rows]]] # drop missing values if they were filtered from the data set
   }
   
   # set up the labels
