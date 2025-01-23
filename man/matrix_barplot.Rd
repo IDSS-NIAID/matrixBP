@@ -19,6 +19,7 @@ matrix_barplot(
   show_strip.x.background = orientation == "landscape",
   remove.x.labels = TRUE,
   remove.y.labels = TRUE,
+  remove.panel.grid = TRUE,
   ...
 )
 }
@@ -48,6 +49,8 @@ matrix_barplot(
 \item{remove.x.labels}{Logical indicating whether to remove the x-axis labels.}
 
 \item{remove.y.labels}{Logical indicating whether to remove the y-axis labels.}
+
+\item{remove.panel.grid}{Logical indicating whether to remove the panel grid.}
 
 \item{...}{Other arguments passed on to `ggplot`. These are often aesthetics, used to set an aesthetic to a fixed value, like color = "red" or size = 3.}
 }

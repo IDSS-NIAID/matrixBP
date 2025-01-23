@@ -18,5 +18,5 @@ mBP_legend
 Add matrix barplot legend to a plot
 }
 \note{
-This function will throw a warning about removing rows containing missing values or values outside the scale range due to some hidden featrues that are not plotted.
+This function will throw a warning about removing rows containing missing values or values outside the scale range due to some hidden features that are not plotted.
 }
