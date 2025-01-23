@@ -91,7 +91,7 @@ matrix_barplot <- function(data = NULL, mapping = NULL,
     # default theme for matrix_barplots
     theme(legend.position = 'top') +
     
-    scale_color_gradient2(low = 'blue', high = 'red', midpoint = 'grey45')
+    scale_color_gradient2(low = 'blue', high = 'red', mid = 'grey45')
   
   
   # hide the strip text by default
