@@ -8,11 +8,8 @@ License: MIT + file LICENSE
 Depends: R (>= 4.0), deeptime, ggplot2, patchwork
 Imports: 
   dplyr,
-  forcats,
   ggh4x,
-  rlang,
   stats,
-  utils
 URL: https://github.com/IDSS-NIAID/matrixBP
 BugReports: https://github.com/IDSS-NIAID/matrixBP/issues
 Encoding: UTF-8
