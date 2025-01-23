@@ -14,6 +14,7 @@
 #' @param show_strip.x.background Logical indicating whether to print rectangles for the x-axis facets associated with `cols`.
 #' @param remove.x.labels Logical indicating whether to remove the x-axis labels.
 #' @param remove.y.labels Logical indicating whether to remove the y-axis labels.
+#' @param remove.panel.grid Logical indicating whether to remove the panel grid.
 #' @param ... Other arguments passed on to `ggplot`. These are often aesthetics, used to set an aesthetic to a fixed value, like color = "red" or size = 3.
 #' 
 #' @details This function creates a matrix barplot and expects `x` (e.g. a gene or metabolite) and `y` (a numeric value defining the hight of the bars, e.g. -log10 p-value) to be defined in the mapping.
@@ -32,7 +33,8 @@ matrix_barplot <- function(data = NULL, mapping = NULL,
                            show_strip.x.text = FALSE, show_strip.y.text = FALSE,
                            show_strip.y.background = orientation == 'portrait',
                            show_strip.x.background = orientation == 'landscape', 
-                           remove.x.labels = TRUE, remove.y.labels = TRUE, ...)
+                           remove.x.labels = TRUE, remove.y.labels = TRUE,
+                           remove.panel.grid = TRUE, ...)
 {
   # translate `switch` to work with `facet_grid_color`
   if(!switch)
@@ -94,6 +96,9 @@ matrix_barplot <- function(data = NULL, mapping = NULL,
   if(!show_strip.x.background)
     retval <- retval + theme(strip.background.x = element_rect(fill = 'transparent', color = NA))
   
+  # remove the panel grid
+  if(remove.panel.grid)
+    retval <- retval + theme(panel.grid = element_blank())
   
   retval
 }

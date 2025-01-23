@@ -3,7 +3,7 @@
 #' 
 #' @param g A ggplot object as returned from `matrix_barplot`.
 #' 
-#' @note This function will throw a warning about removing rows containing missing values or values outside the scale range due to some hidden featrues that are not plotted.
+#' @note This function will throw a warning about removing rows containing missing values or values outside the scale range due to some hidden features that are not plotted.
 #' 
 #' @return A ggplot object with a legend added.
 #' @export
