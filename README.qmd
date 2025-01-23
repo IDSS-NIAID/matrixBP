@@ -62,6 +62,12 @@ matrix_barplot(metlip, aes(x = neg_log_p, y = Lipid, color = log2FC),
                orientation = 'portrait') |>
   mBP_row_labels()
 
+# playing around with `add_row_boxes`
+# b <- add_row_boxes(p)
+# 
+#   add_row_boxes()# |>
+#   mBP_row_labels()
+
 (filter(metlip, Group %in% c('Lyso_PE', 'Lyso_PG', 'Lyso_PI')) |>
   matrix_barplot(aes(x = neg_log_p, y = Lipid, color = log2FC),
                cols = vars(sample), rows = vars(Group), facet_colors = grp_colors,
