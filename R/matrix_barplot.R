@@ -67,7 +67,19 @@ matrix_barplot <- function(data = NULL, mapping = NULL,
   }else{
     stop('orientation must be either "landscape" or "portrait"')
   }
+  
+  # check that we don't have multiple rows or columns plotted to the same position
+  data_check <- select(data,
+                       unlist(retval$labels), # pull variables called out in `mapping`
+                       str_replace(as.character(cols), '~', ''), # pull `cols` variables
+                       str_replace(as.character(rows), '~', '')) # pull `rows` variables
+
+     # we should have the same number of unique rows for `x` and `y` (i.e. no duplicate `x` or `y` for any panel)
+  if(nrow(unique(select(data_check, x, str_replace(as.character(cols), '~', ''), str_replace(as.character(rows), '~', '')))) !=
+     nrow(unique(select(data_check, y, str_replace(as.character(cols), '~', ''), str_replace(as.character(rows), '~', '')))))
+    stop('multiple rows or columns plotted to the same position. Did you forget to define `rows` or `cols`?')
    
+  
   # remove labels
   if(remove.x.labels)
     retval <- retval + scale_x_discrete(labels = NULL, breaks = NULL) + labs(x = NULL)
