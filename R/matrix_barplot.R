@@ -8,6 +8,13 @@
 #' @param facet_colors Specifies which colors to use to replace the strip backgrounds (i.e. corresponding to the values in the variables specified in `rows` and `cols`. Either A) a function that returns a color for a given strip label, B) the character name of a function that does the same, C) a named character vector with names matching strip labels and values indicating the desired colors, or D) a data.frame representing a lookup table with columns named "name" (matching strip labels) and "color" (indicating desired colors).
 #' @param orientation Character value defining the orientation of the plot. Can be "landscape" or "portrait".
 #' @param switch Logical. By default (`switch = FALSE`), the labels are displayed on the bottom and/or left of the plot. If `switch = TRUE`, the labels are displayed on the top and/or right of the plot.
+#' @param pval_cap Numeric value indicating the maximum p-value to plot. All p-values above this value will be plotted at this value with an asterisk indicating they are capped.
+#' @param legend.position Character value indicating the position of the legend. Can be "top", "bottom", "left", "right", or "none". 
+#' @param sig_lines_at Numeric vector indicating the significance levels (i.e. p-values) to mark on the plot.
+#' @param sig_line_type Character value indicating the type of line to use for the significance lines (should be the same length as `sig_lines_at` or a multiple). Can be "solid", "dashed", "dotted", "dotdash", "longdash", or "twodash".
+#' @param sig_line_labels Character vector indicating the labels to use for the significance lines.
+#' @param sig_line_color Character value indicating the color to use for the significance lines.
+#' @param sig_line_alpha Numeric value indicating the alpha transparency to use for the significance lines.
 #' @param show_strip.x.text Logical indicating whether to show the x-axis facet label text inside the colored rectangles associated with `cols`.
 #' @param show_strip.y.text Logical indicating whether to show the y-axis facet label text inside the colored rectangles associated with `rows`.
 #' @param show_strip.y.background Logical indicating whether to print rectangles for the y-axis facets associated with `rows`.
@@ -17,21 +24,29 @@
 #' @param remove.panel.grid Logical indicating whether to remove the panel grid.
 #' @param ... Other arguments passed on to `ggplot`. These are often aesthetics, used to set an aesthetic to a fixed value, like color = "red" or size = 3.
 #' 
-#' @details This function creates a matrix barplot and expects `x` (e.g. a gene or metabolite) and `y` (a numeric value defining the hight of the bars, e.g. -log10 p-value) to be defined in the mapping.
+#' @details This function creates a matrix barplot and expects `x` (e.g. a gene or metabolite) and `y` (a numeric value defining the height of the bars, e.g. -log10 p-value) to be defined in the mapping.
+#' Other parameter defaults are tuned to work well with p-values (y-axis) and fold change statistics (mapped to the color aesthetic).
 #' The colors of the bars are defined by the `color` aesthetic.
 #' 
 #' Fill colors for the categories along the x-axis unless there are more than 12 categories.
 #' In this case, or when category labels are desired in lieu of colors, the `label` aesthetic can be used.
 #' 
+#' When `sig_lines_*` are `NULL`, `matrix_barplot` will attempt to guess appropriate significance levels, line attributes based on the minimum value of `y`.
+#' If the length of `sig_line_` `type`, `labels` and `color` are not equal to the length of `sig_lines_at`, `matrix_barplot` will recycle the values provided.
+#' To disable plotting of significance lines, set `sig_lines_at = NA`. Note that `sig_line_color` must be a single value.
+#' 
 #' @return A ggplot2 object
 #' @export
 #' @importFrom deeptime facet_grid_color
 #' @importFrom dplyr select
-#' @importFrom ggplot2 element_text element_rect geom_segment ggplot labs scale_color_gradient2 scale_x_discrete scale_y_discrete theme
+#' @importFrom ggplot2 element_text element_rect geom_hline geom_segment geom_vline ggplot labs scale_alpha_manual scale_color_gradient2 scale_linetype_manual scale_x_discrete scale_y_discrete theme
 #' @importFrom stringr str_replace
 matrix_barplot <- function(data = NULL, mapping = NULL, 
                            rows = vars(), cols = vars(), facet_colors = deeptime::stages,
                            orientation = 'landscape', switch = FALSE,
+                           pval_cap = 1e-5, legend.position = 'top',
+                           sig_lines_at = NULL, sig_line_type = NULL, sig_line_labels = NULL,
+                           sig_line_color = 'grey80', sig_line_alpha = NULL,
                            show_strip.x.text = FALSE, show_strip.y.text = FALSE,
                            show_strip.y.background = orientation == 'portrait',
                            show_strip.x.background = orientation == 'landscape', 
@@ -40,7 +55,7 @@ matrix_barplot <- function(data = NULL, mapping = NULL,
 {
   # for those pesky no visible binding errors
   if(FALSE)
-    x <- y <- NULL
+    x <- y <- type_label <- at <- alpha <- type <- NULL
   
   # translate `switch` to work with `facet_grid_color`
   if(!switch)
@@ -50,11 +65,56 @@ matrix_barplot <- function(data = NULL, mapping = NULL,
     switch_translation <- NULL
   }
   
+  # if p-values are not capped, set cap at minimum p-value
+  if(is.na(pval_cap) | is.null(pval_cap))
+  {
+    if(orientation == 'landscape')
+      pval_cap <- min(data[[as_label(mapping$y)]], na.rm = TRUE)
+    else
+      pval_cap <- min(data[[as_label(mapping$x)]], na.rm = TRUE)
+  }
+  
+  
+  # significance lines
+  if(is.null(sig_lines_at))
+    sig_lines_at <- c(-log10(0.05), seq(from = 2, to = -log10(pval_cap))) # this will truncate at `floor(log10(pval_cap)))`
+  
+  if(is.null(sig_line_type))
+    sig_line_type <- 'solid'
+  
+  if(is.null(sig_line_alpha))
+    sig_line_alpha <- c(1, rep(0.4, length(sig_lines_at) - 1))
+  
+  if(is.null(sig_line_labels))
+    sig_line_labels <- c('p = 0.05', rep('-log10(p) = 2, 3, ...', length(sig_lines_at) - 1))
+  
+  siglines <- data.frame(at = c(sig_lines_at, -sig_lines_at),
+                         type_label = rep(sig_line_labels, length(sig_lines_at))[1:length(sig_lines_at)],
+                         type       = rep(sig_line_type  , length(sig_lines_at))[1:length(sig_lines_at)],
+                         alpha      = rep(sig_line_alpha , length(sig_lines_at))[1:length(sig_lines_at)]) |>
+    mutate(type_label = factor(type_label, levels = unique(type_label)))
+  
+  
   # main figure
   if(orientation == 'landscape')
   {
-    retval <- ggplot(data, mapping, ...) +
+    retval <- ggplot(data, mapping, ...)
+
+    # add significance lines (if they are not NA / turned off)    
+    if(!any(is.na(sig_lines_at)))
+      retval <- retval + 
+        geom_hline(data = siglines, mapping = aes(yintercept = at, linetype = type_label, alpha = type_label), 
+                   color = sig_line_color) +
+        scale_linetype_manual(values = unique(select(siglines, type_label, type))$type,
+                              labels = unique(select(siglines, type_label, type))$type_label,
+                              aesthetics = 'linetype',
+                              name = 'Significance') +
+        scale_alpha_manual(values = unique(select(siglines, type_label, alpha))$alpha,
+                           labels = unique(select(siglines, type_label, alpha))$type_label,
+                           aesthetics = 'alpha',
+                           name = 'Significance')
       
+    retval <- retval +
       geom_segment(stat = "centerBar") +
       
       # add facet grid with custom colors
@@ -62,8 +122,23 @@ matrix_barplot <- function(data = NULL, mapping = NULL,
                        switch = switch_translation, scales = 'free_x', space = 'free')
       
   }else if(orientation == 'portrait'){
-    retval <- ggplot(data, mapping, ...) +
+    retval <- ggplot(data, mapping, ...)
       
+    # add significance lines (if they are not NA / turned off)    
+    if(!any(is.na(sig_lines_at)))
+      retval <- retval + 
+        geom_vline(data = siglines, mapping = aes(xintercept = at, linetype = type_label, alpha = type_label), 
+                   color = sig_line_color) +
+        scale_linetype_manual(values = unique(select(siglines, type_label, type))$type,
+                              labels = unique(select(siglines, type_label, type))$type_label,
+                              aesthetics = 'linetype',
+                              name = 'Significance') +
+        scale_alpha_manual(values = unique(select(siglines, type_label, alpha))$alpha,
+                           labels = unique(select(siglines, type_label, alpha))$type_label,
+                           aesthetics = 'alpha',
+                           name = 'Significance')
+    
+    retval <- retval +      
       geom_segment(stat = "centerBar2") +
       
       # add facet grid with custom colors
@@ -74,9 +149,10 @@ matrix_barplot <- function(data = NULL, mapping = NULL,
     stop('orientation must be either "landscape" or "portrait"')
   }
   
+  
   # check that we don't have multiple rows or columns plotted to the same position
   data_check <- select(data,
-                       unlist(retval$labels), # pull variables called out in `mapping`
+                       unlist(retval$labels)[c('x', 'y')],       # pull variables called out in `mapping`
                        str_replace(as.character(cols), '~', ''), # pull `cols` variables
                        str_replace(as.character(rows), '~', '')) # pull `rows` variables
 
@@ -86,19 +162,17 @@ matrix_barplot <- function(data = NULL, mapping = NULL,
     stop('multiple rows or columns plotted to the same position. Did you forget to define `rows` or `cols`?')
    
   
+  # add fold change color scale and legend
+  retval <- retval +
+    theme(legend.position = legend.position) +
+    scale_color_gradient2(low = 'blue', high = 'red', mid = 'grey50')
+
+
   # remove labels
   if(remove.x.labels)
     retval <- retval + scale_x_discrete(labels = NULL, breaks = NULL) + labs(x = NULL)
   if(remove.y.labels)
     retval <- retval + scale_y_discrete(labels = NULL, breaks = NULL) + labs(y = NULL)
-  
-  retval <- retval +
-
-    # default theme for matrix_barplots
-    theme(legend.position = 'top') +
-    
-    scale_color_gradient2(low = 'blue', high = 'red', mid = 'grey45')
-  
   
   # hide the strip text by default
   if(!show_strip.x.text)

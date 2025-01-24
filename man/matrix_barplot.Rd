@@ -13,6 +13,13 @@ matrix_barplot(
   facet_colors = deeptime::stages,
   orientation = "landscape",
   switch = FALSE,
+  pval_cap = 1e-05,
+  legend.position = "top",
+  sig_lines_at = NULL,
+  sig_line_type = NULL,
+  sig_line_labels = NULL,
+  sig_line_color = "grey80",
+  sig_line_alpha = NULL,
   show_strip.x.text = FALSE,
   show_strip.y.text = FALSE,
   show_strip.y.background = orientation == "portrait",
@@ -38,6 +45,20 @@ matrix_barplot(
 
 \item{switch}{Logical. By default (`switch = FALSE`), the labels are displayed on the bottom and/or left of the plot. If `switch = TRUE`, the labels are displayed on the top and/or right of the plot.}
 
+\item{pval_cap}{Numeric value indicating the maximum p-value to plot. All p-values above this value will be plotted at this value with an asterisk indicating they are capped.}
+
+\item{legend.position}{Character value indicating the position of the legend. Can be "top", "bottom", "left", "right", or "none".}
+
+\item{sig_lines_at}{Numeric vector indicating the significance levels (i.e. p-values) to mark on the plot.}
+
+\item{sig_line_type}{Character value indicating the type of line to use for the significance lines (should be the same length as `sig_lines_at` or a multiple). Can be "solid", "dashed", "dotted", "dotdash", "longdash", or "twodash".}
+
+\item{sig_line_labels}{Character vector indicating the labels to use for the significance lines.}
+
+\item{sig_line_color}{Character value indicating the color to use for the significance lines.}
+
+\item{sig_line_alpha}{Numeric value indicating the alpha transparency to use for the significance lines.}
+
 \item{show_strip.x.text}{Logical indicating whether to show the x-axis facet label text inside the colored rectangles associated with `cols`.}
 
 \item{show_strip.y.text}{Logical indicating whether to show the y-axis facet label text inside the colored rectangles associated with `rows`.}
@@ -62,9 +83,14 @@ matrix_barplot
 Creation of a matrix barplot using ggplot2
 }
 \details{
-This function creates a matrix barplot and expects `x` (e.g. a gene or metabolite) and `y` (a numeric value defining the hight of the bars, e.g. -log10 p-value) to be defined in the mapping.
+This function creates a matrix barplot and expects `x` (e.g. a gene or metabolite) and `y` (a numeric value defining the height of the bars, e.g. -log10 p-value) to be defined in the mapping.
+Other parameter defaults are tuned to work well with p-values (y-axis) and fold change statistics (mapped to the color aesthetic).
 The colors of the bars are defined by the `color` aesthetic.
 
 Fill colors for the categories along the x-axis unless there are more than 12 categories.
 In this case, or when category labels are desired in lieu of colors, the `label` aesthetic can be used.
+
+When `sig_lines_*` are `NULL`, `matrix_barplot` will attempt to guess appropriate significance levels, line attributes based on the minimum value of `y`.
+If the length of `sig_line_` `type`, `labels` and `color` are not equal to the length of `sig_lines_at`, `matrix_barplot` will recycle the values provided.
+To disable plotting of significance lines, set `sig_lines_at = NA`. Note that `sig_line_color` must be a single value.
 }
