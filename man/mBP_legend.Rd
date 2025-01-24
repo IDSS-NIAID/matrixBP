@@ -5,10 +5,14 @@
 \title{mBP_legend
 Add matrix barplot legend to a plot}
 \usage{
-mBP_legend(g)
+mBP_legend(g, legend.position = "bottom", ...)
 }
 \arguments{
 \item{g}{A ggplot object as returned from `matrix_barplot`.}
+
+\item{legend.position}{A character string indicating the position of the legend. Default is "bottom".}
+
+\item{...}{Parameters passed to `patchwork::plot_layout` for defining the plot layout. See ?plot_layout for more information.}
 }
 \value{
 A ggplot object with a legend added.

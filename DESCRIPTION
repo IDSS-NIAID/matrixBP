@@ -7,9 +7,11 @@ Description: This package provides a functions for creating matrix barplots.
 License: MIT + file LICENSE
 Depends: R (>= 4.0), deeptime, ggplot2, patchwork
 Imports: 
+  cowplot,
   dplyr,
   ggh4x,
   stats,
+  stringr
 URL: https://github.com/IDSS-NIAID/matrixBP
 BugReports: https://github.com/IDSS-NIAID/matrixBP/issues
 Encoding: UTF-8

@@ -2,18 +2,21 @@
 #' Add matrix barplot legend to a plot
 #' 
 #' @param g A ggplot object as returned from `matrix_barplot`.
+#' @param legend.position A character string indicating the position of the legend. Default is "bottom".
+#' @param ... Parameters passed to `patchwork::plot_layout` for defining the plot layout. See ?plot_layout for more information.
 #' 
 #' @note This function will throw a warning about removing rows containing missing values or values outside the scale range due to some hidden features that are not plotted.
 #' 
 #' @return A ggplot object with a legend added.
 #' @export
+#' @importFrom cowplot get_plot_component
 #' @importFrom ggplot2 aes as_label geom_rect ggplot ggplot_build scale_fill_manual theme theme_void
-#' @importFrom patchwork area plot_layout
-mBP_legend <- function(g)
+#' @importFrom patchwork area plot_layout wrap_elements
+mBP_legend <- function(g, legend.position = 'bottom', ...)
 {
   # take care of pesky no visible binding for global variables warnings
   if(FALSE)
-    row_grp <- x <- y <- xend <- NULL
+      row_grp <- x <- y <- xend <- NULL
 
   # this is where we'll find most of the legend details
   color_env <- environment(ggplot_build(g)$layout$facet_params$colors)
@@ -23,7 +26,7 @@ mBP_legend <- function(g)
   colors <- get('color', color_env)
   
   # set up the legend
-  lgnd <- data.frame(x = NA, y = NA, row_grp = factor(labs, levels = labs)) |>
+  lgnd <- data.frame(x = 1, y = 1, row_grp = factor(labs, levels = labs)) |>
     
     # this will be a blank plot
     ggplot(aes(x = x, y = y, fill = row_grp)) +
@@ -34,13 +37,55 @@ mBP_legend <- function(g)
     labs(fill = as_label(ggplot_build(g)$layout$facet$params$cols[[1]])) +
     
     theme_void() +
-    theme(legend.position = 'bottom')
+    theme(legend.position = legend.position)
+  
+  # pull the legend from the plot
+  if(is.null(legend.position))
+  {
+    lgnd <- get_plot_component(lgnd, 'guide-box')
+  }else{
+    lgnd <- paste('guide-box', legend.position, sep = '-') |>
+      get_plot_component(plot = lgnd)
+  }
 
   # add the legend to the plot
-  layout <- c(area(t = 1, l = 1, b = 19, r = 1),
-              area(t = 1, l = 1, b = 20, r = 1))
-  
-  g + lgnd + plot_layout(design = layout)
+  if(legend.position == 'bottom')
+  {
+    # if they provided values for plot_layout, use them
+    dots <- list(...)
+    if(length(dots) == 0)
+      dots$heights <- c(1, 0.2) # otherwise use the default
+    
+    retval <- g / lgnd + do.call(plot_layout, dots)
+  }else if(legend.position == 'right'){
+    
+    # if they provided values for plot_layout, use them
+    dots <- list(...)
+    if(length(dots) == 0)
+      dots$widths <- c(1, 0.2) # otherwise use the default
+    
+    retval <- g + lgnd + do.call(plot_layout, dots)
+  }else if(legend.position == 'left')
+  {
+    # if they provided values for plot_layout, use them
+    dots <- list(...)
+    if(length(dots) == 0)
+      dots$widths <- c(0.2, 1) # otherwise use the default
+    
+    retval <- wrap_elements(lgnd) + g + do.call(plot_layout, dots)
+  }else if(legend.position == 'top')
+  {
+    # if they provided values for plot_layout, use them
+    dots <- list(...)
+    if(length(dots) == 0)
+      dots$heights <- c(0.2, 1) # otherwise use the default
+    
+    retval <- wrap_elements(lgnd) / g + do.call(plot_layout, dots)
+  }else{
+    stop('Invalid legend position. Must be one of "bottom", "right", "left", or "top".')
+  }
+
+  return(retval)
 }
 
 

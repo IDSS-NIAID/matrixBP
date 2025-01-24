@@ -42,7 +42,7 @@ matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
 matrix_barplot(metlip, aes(x = neg_log_p, y = Lipid, color = log2FC),
                cols = vars(sample), rows = vars(Group), facet_colors = grp_colors,
                orientation = 'portrait') |>
-  mBP_legend()
+  mBP_legend(legend.position = 'left')
 
 # change the color of the bars
 g1 <- matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
@@ -83,13 +83,16 @@ matrix_barplot(metlip, aes(x = neg_log_p, y = Lipid, color = log2FC),
 
 # larger plots seem to have trouble rendering in RStudio, but saving them as a file works
 #ggsave('12_samples.png', g, width = 10, height = 10)
+```
 
+```{r}
+#| eval: false
 # trying to plot multiple samples on a single row causes the colors not to work
-# add a catch that will notify the user if they try to do this
+# if you get this error, that is the likely cause of the issue.
 matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),
                cols = vars(Group), facet_colors = grp_colors) |>
   mBP_legend()
-
-
-# try adding `na.rm = TRUE` to `scale_...` to see if that gets rid of warnings about NA values
 ```
+
+    Error in matrix_barplot(metlip, aes(x = Lipid, y = neg_log_p, color = log2FC),  : 
+       multiple rows or columns plotted to the same position. Did you forget to define `rows` or `cols`?

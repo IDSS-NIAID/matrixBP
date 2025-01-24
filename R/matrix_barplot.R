@@ -26,7 +26,9 @@
 #' @return A ggplot2 object
 #' @export
 #' @importFrom deeptime facet_grid_color
+#' @importFrom dplyr select
 #' @importFrom ggplot2 element_text element_rect geom_segment ggplot labs scale_color_gradient2 scale_x_discrete scale_y_discrete theme
+#' @importFrom stringr str_replace
 matrix_barplot <- function(data = NULL, mapping = NULL, 
                            rows = vars(), cols = vars(), facet_colors = deeptime::stages,
                            orientation = 'landscape', switch = FALSE,
@@ -36,6 +38,10 @@ matrix_barplot <- function(data = NULL, mapping = NULL,
                            remove.x.labels = TRUE, remove.y.labels = TRUE,
                            remove.panel.grid = TRUE, ...)
 {
+  # for those pesky no visible binding errors
+  if(FALSE)
+    x <- y <- NULL
+  
   # translate `switch` to work with `facet_grid_color`
   if(!switch)
   {
