@@ -3,13 +3,14 @@ Title: A pacakge for creating matrix barplots
 Version: 0.1.0
 Authors@R: c(person('Randy', 'Johnson', email = 'randall.johnson@nih.gov', 
                     role = c('cre', 'aut')))
-Description: This package provides a functions for creating matrix barplots.
+Description: This package provides functions for creating matrix barplots within the ggplot2 framework.
 License: MIT + file LICENSE
 Depends: R (>= 4.0), deeptime, ggplot2, patchwork
 Imports: 
   cowplot,
   dplyr,
   ggh4x,
+  purrr,
   stats,
   stringr
 URL: https://github.com/IDSS-NIAID/matrixBP

@@ -101,6 +101,7 @@ mBP_legend <- function(g, legend.position = 'bottom', ...)
 #' @importFrom ggh4x facetted_pos_scales
 #' @importFrom ggplot2 aes as_label coord_cartesian element_blank element_text facet_grid geom_text ggplot ggplot_build labs scale_color_manual scale_x_continuous scale_x_discrete scale_y_continuous scale_y_discrete theme vars
 #' @importFrom patchwork area plot_layout
+#' @importFrom purrr map_lgl
 #' @importFrom stats median
 mBP_col_labels <- function(g, margin = 3)
 {
@@ -126,8 +127,14 @@ mBP_col_labels <- function(g, margin = 3)
       factor(levels = tmp)                         # and convert back to a factor with the correct levels
   }
   
+  # figure out which data frame to pull the labels from
+  which2pull <- map_lgl(1:length(ggplot_build(g)$data), ~
+                          c('PANEL', 'x', 'xend') %in% names(ggplot_build(g)$data[[.x]]) |> 
+                          all()) |>
+    which()
+  
   # set up the labels
-  col_labels <- ggplot_build(g)$data[[1]] |>
+  col_labels <- ggplot_build(g)$data[[which2pull]] |>
     group_by(PANEL) |>
     mutate(lbl = cols[PANEL],                       # x-axis labels
            midpoint = median(c(x, xend)),           # midpoint of each group
@@ -220,8 +227,14 @@ mBP_row_labels <- function(g, margin = 3)
       factor(levels = tmp)                         # and convert back to a factor with the correct levels
   }
   
+  # figure out which data frame to pull the labels from
+  which2pull <- map_lgl(1:length(ggplot_build(g)$data), ~
+                          c('PANEL', 'y', 'yend') %in% names(ggplot_build(g)$data[[.x]]) |> 
+                          all()) |>
+    which()
+  
   # set up the labels
-  row_labels <- ggplot_build(g)$data[[1]] |>
+  row_labels <- ggplot_build(g)$data[[which2pull]] |>
     mutate(lbl = rep(rows, each = ncols)[PANEL] |>
              factor(levels = rows)) |>              # y-axis labels
     
@@ -239,7 +252,7 @@ mBP_row_labels <- function(g, margin = 3)
            grp = PANEL) |>                          # group number
     ungroup() |>
     
-    dplyr::select(-PANEL, -colour, -group, -xend, -grp) |>
+    dplyr::select(-PANEL, -colour, -group, -yend, -grp) |>
     unique()                                        # if there are multiple rows/samples, all but the first row will be NA - drop them
     
   row_labels <- row_labels |> 
