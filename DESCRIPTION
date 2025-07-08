@@ -1,6 +1,6 @@
 Package: matrixBP
 Title: A pacakge for creating matrix barplots
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(person('Randy', 'Johnson', email = 'randall.johnson@nih.gov', 
                     role = c('cre', 'aut')))
 Description: This package provides functions for creating matrix barplots within the ggplot2 framework.
@@ -18,3 +18,6 @@ BugReports: https://github.com/IDSS-NIAID/matrixBP/issues
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 LazyData: true
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

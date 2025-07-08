@@ -151,14 +151,19 @@ matrix_barplot <- function(data = NULL, mapping = NULL,
   
   
   # check that we don't have multiple rows or columns plotted to the same position
-  data_check <- select(data,
-                       unlist(retval$labels)[c('x', 'y')],       # pull variables called out in `mapping`
-                       str_replace(as.character(cols), '~', ''), # pull `cols` variables
-                       str_replace(as.character(rows), '~', '')) # pull `rows` variables
+  # get the names of the variables passed to `rows` and `cols`
+  row_vars <- unlist(lapply(rows, rlang::as_name))
+  col_vars <- unlist(lapply(cols, rlang::as_name))
 
-     # we should have the same number of unique rows for `x` and `y` (i.e. no duplicate `x` or `y` for any panel)
-  if(nrow(unique(select(data_check, x, str_replace(as.character(cols), '~', ''), str_replace(as.character(rows), '~', '')))) !=
-     nrow(unique(select(data_check, y, str_replace(as.character(cols), '~', ''), str_replace(as.character(rows), '~', '')))))
+  # get the name of the variable passed to `x` or `y`
+  if (orientation == 'landscape') {
+    sample_def_vars <- c(rlang::as_name(mapping$x), row_vars, col_vars)
+  } else { # portrait
+    sample_def_vars <- c(rlang::as_name(mapping$y), row_vars, col_vars)
+  }
+  
+  # we should not have any duplicate samples
+  if(any(duplicated(data[sample_def_vars])))
     stop('multiple rows or columns plotted to the same position. Did you forget to define `rows` or `cols`?')
    
   
