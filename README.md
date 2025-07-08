@@ -1,7 +1,7 @@
 # matrixBP
 
 
-[![](https://zenodo.org/badge/DOI/10.5281/zenodo.14749077.svg)](https://doi.org/10.5281/zenodo.14749077)
+[![](https://zenodo.org/badge/DOI/10.5281/zenodo.14749076.svg)](https://doi.org/10.5281/zenodo.14749076)
 
 ## Installation
 
